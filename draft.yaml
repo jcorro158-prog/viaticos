@@ -1,0 +1,200 @@
+models:
+  Regime:
+    name: string
+    description: text nullable
+    legal_basis: text nullable
+    timestamps: true
+    softDeletes: true
+    relationships:
+      hasMany: RegimeLevel
+
+  RegimeLevel:
+    name: string
+    code: string
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: Regime
+      hasMany: RegimeLevelGrade
+
+  RegimeLevelGrade:
+    name: string
+    order: integer
+    regime_level_id: id
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: RegimeLevel
+
+  SalaryScale:
+    year: year
+    active: boolean default:true
+    base_salary: double
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: RegimeLevelGrade, SalaryScaleDecree, User
+
+  SalaryScaleDecree:
+    decree: text
+    description: text
+    date: date
+
+  VinvulationType:
+    name: string
+    timestamps: true
+    softDeletes: true
+    relationships:
+      hasMany: Official
+
+  Official:
+    start_date: date
+    end_date: date nullable
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: User, VinvulationType, RegimeLevelGrade
+
+  JobTitle:
+    name: string
+    active: boolean default:true
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: Dependency
+      hasMany: Official
+
+  Dependency:
+    name: string
+    default: boolean default:false
+    timestamps: true
+    softDeletes: true
+    relationships:
+      hasMany: JobTitle
+
+  Budget:
+    decree: text
+    code: text
+    year: year
+    in_force: boolean default:true
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: Dependency, BudgetSource
+
+  BudgetSource:
+    name: string
+    timestamps: true
+    softDeletes: true
+    relationships:
+      hasMany: Budget
+
+  Approval:
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: Dependency, ApprovalType, Commission, User
+      belongsToMany: CommissionComment
+
+  ApprovalType:
+    name: string
+    timestamps: true
+    softDeletes: true
+    relationships:
+      hasMany: Approval
+
+  Commission:
+    objetive: text
+    start_date: date
+    end_date: date
+    abroad: boolean
+    destination: text
+    training_expenses: double nullable
+    budget_id: id nullable
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: User, CommissionStatus, Dependency, Budget
+      hasMany: Resolution
+
+  CommissionStatus:
+    name: string
+    timestamps: true
+    softDeletes: true
+    relationships:
+      hasMany: Commission, CommissionComment
+
+  CommissionComment:
+    comment: text
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: Commission, User, CommissionStatus
+      belongsToMany: Approval
+
+
+  Resolution:
+    number: string
+    date: date
+    file: string
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: User, Commission
+
+  CommissionExpense:
+    value: double
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: Commission, ExpenseType
+
+  ExpenseType:
+    name: string
+    timestamps: true
+    softDeletes: true
+    relationships:
+      hasMany: CommissionExpense
+
+  Document:
+    commets: text nullable
+    file: string
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: User, DocumentType, Commission
+
+  DocumentType:
+    name: string
+    timestamps: true
+    softDeletes: true
+    relationships:
+      hasMany: Document
+
+  AssignedUserRole:
+    timestamps: true
+    softDeletes: true
+    relationships:
+      belongsTo: User, Role, Dependency
+
+  Role:
+    name: string
+    timestamps: true
+    softDeletes: true
+    relationships:
+      hasMany: AssignedUserRole
+
+# controllers:
+#   DocumentType:
+#     index:
+#       query: all
+#     store:
+#       validate: name
+#       save: document_type
+  
+#   Document:
+#     index:
+#       query: all
+#     store:
+#       validate: comments, file, document_type_id, commission_id
+#       save: document
