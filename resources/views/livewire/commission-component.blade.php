@@ -53,7 +53,9 @@
 
                 <div class="flex items-center gap-4">
                     <div class="flex items-center gap-1 bg-black/20 rounded-lg p-1">
-                        <flux:button variant="ghost" size="sm" icon="pencil" wire:click="edit({{ $commission->id }})" class="text-blue-400 hover:text-blue-300" />
+                        <flux:modal.trigger name="new-commission">
+                            <flux:button variant="ghost" size="sm" icon="pencil" wire:click="edit({{ $commission->id }})" class="text-blue-400 hover:text-blue-300" />
+                        </flux:modal.trigger>
                         <flux:button variant="ghost" size="sm" icon="trash" wire:click="delete({{ $commission->id }})" wire:confirm="¿Estás seguro de que deseas eliminar este comisionado?" class="text-red-400 hover:text-red-300" />
                     </div>
 
@@ -105,8 +107,8 @@
                 <div class="flex items-center gap-1">
                     <span class="font-bold text-lg text-orange-500">Gastos de capacitación:</span>
                     <span class="font-light">
-                        @if($commission->training_value && $commission->training_value > 0)
-                            ${{ number_format($commission->training_value, 0, ',', '.') }}
+                        @if($commission->training_expenses && $commission->training_expenses > 0)
+                            ${{ number_format($commission->training_expenses, 0, ',', '.') }}
                         @else
                             No aplica
                         @endif
@@ -151,12 +153,31 @@
                 </div>
             </div>
 
-            <flux:modal name="upload-evidence-{{ $commission->id }}" class="max-w-md" wire:ignore.self>
+            <flux:modal name="upload-evidence-{{ $commission->id }}" class="max-w-md" wire:ignore.self
+                x-on:close-modal.window="$event.detail.name === 'upload-evidence-{{ $commission->id }}' && $flux.modal('upload-evidence-{{ $commission->id }}').close()">
                 <form wire:submit.prevent="uploadEvidence({{ $commission->id }})" enctype="multipart/form-data" class="space-y-4">
                     <flux:heading>Subir Evidencias</flux:heading>
                     <flux:field>
                         <flux:label>Seleccione el archivo de evidencia</flux:label>
                         <flux:input type="file" wire:model="evidence_file" wire:key="evid-{{ $commission->id }}" />
+                        <div wire:loading wire:target="evidence_file" class="mt-2 space-y-1">
+                            <div class="text-xs text-orange-400">
+                                <span>Subiendo archivo...</span>
+                            </div>
+                            <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                                <div class="h-full bg-orange-500 rounded-full"
+                                    x-data="{ width: 0 }"
+                                    x-init="
+                                        let interval = setInterval(() => {
+                                            if (width >= 90) clearInterval(interval);
+                                            width += 2;
+                                        }, 50);
+                                    "
+                                    :style="'width: ' + width + '%'"
+                                    style="transition: width 0.1s ease;">
+                                </div>
+                            </div>
+                        </div>
                     </flux:field>
                     <div class="flex justify-end">
                         <flux:button type="submit" variant="primary">Subir</flux:button>
@@ -173,7 +194,8 @@
     @endforeach
 
     {{-- MODAL GESTIÓN COMISIÓN --}}
-    <flux:modal name="new-commission" class="w-full max-w-3xl" wire:ignore.self>
+    <flux:modal name="new-commission" class="w-full max-w-3xl" wire:ignore.self
+        x-on:close-modal.window="$event.detail.name === 'new-commission' && $flux.modal('new-commission').close()">
         <form wire:submit="save" enctype="multipart/form-data" class="space-y-6">
             <div>
                 <flux:heading size="lg">{{ $commission_id ? __('Editar Comisión') : __('Nueva Comisión') }}</flux:heading>
@@ -278,6 +300,24 @@
                 <flux:field>
                     <flux:label>Invitación</flux:label>
                     <flux:input type="file" wire:model="invitation_file" wire:key="inv-{{ $commission_id ?? 'new' }}" />
+                    <div wire:loading wire:target="invitation_file" class="mt-2 space-y-1">
+                        <div class="flex justify-between text-xs text-orange-400">
+                            <span>Subiendo archivo...</span>
+                        </div>
+                        <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                            <div class="h-full bg-orange-500 rounded-full"
+                                x-data="{ width: 0 }"
+                                x-init="
+                                    let interval = setInterval(() => {
+                                        if (width >= 90) clearInterval(interval);
+                                        width += 2;
+                                    }, 50);
+                                "
+                                :style="'width: ' + width + '%'"
+                                style="transition: width 0.1s ease;">
+                            </div>
+                        </div>
+                    </div>
                 </flux:field>
             </div>
 
