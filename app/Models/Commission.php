@@ -18,17 +18,21 @@ class Commission extends Model
      * @var array
      */
     protected $fillable = [
-        'objetive',
-        'start_date',
-        'end_date',
-        'abroad',
-        'destination',
-        'training_expenses',
-        'budget_id',
-        'user_id',
-        'commission_status_id',
-        'dependency_id',
-    ];
+    'objetive', 
+    'identification',
+    'start_date', 
+    'end_date', 
+    'destination', 
+    'description', 
+    'abroad', 
+    'training_expenses', 
+    'user_id', 
+    'commission_status_id', 
+    'dependency_id', 
+    'budget_id', 
+    'invitation_path', 
+    'evidence_path'
+];
 
     /**
      * Get the attributes that should be cast.
