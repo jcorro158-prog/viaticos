@@ -37,7 +37,7 @@
         <div class="bg-white/10 rounded-lg shadow-md mb-4 border border-white/5 hover:border-white/20 transition-all">
             <div class="flex items-center flex-wrap justify-between border-b p-4 border-white">
                 <div class="flex items-center gap-2">
-                    <span class="flex items-center justify-center bg-orange-600 text-white font-bold h-8 w-8 rounded-lg shadow-sm mr-2 text-sm">
+                    <span class="flex items-center justify-center bg-orange-600 !text-white font-bold h-8 w-8 rounded-lg shadow-sm mr-2 text-sm">
                         {{ $loop->iteration }}
                     </span>
 
@@ -115,8 +115,18 @@
                     </span>
                 </div>
                 <div class="flex items-center gap-1">
-                    <span class="font-bold text-lg text-orange-500">Objetivo:</span>
-                    <span class="font-light">{{ $commission->objetive }}</span>
+                    <span class="font-bold text-lg text-orange-500">Tipo de gastos:</span>
+                    <span class="font-light">{{ $commission->expense_type ?? 'Sin asignar' }}</span>
+                </div>
+                <div class="flex items-center gap-1">
+                    <span class="font-bold text-lg text-orange-500">Valor de gastos:</span>
+                    <span class="font-light">
+                        @if($commission->expense_value && $commission->expense_value > 0)
+                            ${{ number_format($commission->expense_value, 0, ',', '.') }}
+                        @else
+                            Sin asignar
+                        @endif
+                    </span>
                 </div>
                 <div class="flex items-center gap-1">
                     <span class="font-bold text-lg text-orange-500">Destino:</span>

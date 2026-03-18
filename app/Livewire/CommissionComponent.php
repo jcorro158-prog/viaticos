@@ -123,9 +123,9 @@ class CommissionComponent extends Component
             Log::warning('Validation failed in CommissionComponent@save', ['errors' => $ve->errors()]);
             return;
         }
-
+ 
         DB::beginTransaction();
-
+ 
         try {
             $dependencyId = $this->dependency_id;
             if (empty($dependencyId)) {
@@ -133,7 +133,7 @@ class CommissionComponent extends Component
                     ? auth()->user()->dependency_id
                     : 1;
             }
-
+ 
             $data = [
                 'objetive' => $this->objective,
                 'identification' => $this->identification ?: null,
@@ -143,12 +143,14 @@ class CommissionComponent extends Component
                 'description' => $this->description ?: null,
                 'abroad' => $this->is_exterior === '1' ? true : false,
                 'training_expenses' => ($this->training_gastos_toggle === '1') ? (float) str_replace(['.', ','], ['', '.'], $this->training_value ?: '0') : 0,
+                'expense_type' => $this->expense_type ?: null,
+                'expense_value' => $this->expense_value ? (float) str_replace(['.', ','], ['', '.'], $this->expense_value) : null,
                 'user_id' => $this->user_id ?: auth()->id(),
                 'commission_status_id' => $this->commission_status_id ?: null,
                 'dependency_id' => $dependencyId,
                 'budget_id' => $this->budget_id ?: null,
             ];
-
+ 
             if ($this->commission_id) {
                 $commission = Commission::find($this->commission_id);
                 if (!$commission) {
@@ -157,11 +159,11 @@ class CommissionComponent extends Component
                 $commission->update($data);
             } else {
                 $commission = Commission::create($data);
-
+ 
                 // Generar número de resolución automático desde 1000
                 $lastResolution = Resolution::orderByDesc('id')->first();
                 $nextNumber = $lastResolution ? (int) $lastResolution->number + 1 : 1000;
-
+ 
                 Resolution::create([
                     'number' => str_pad($nextNumber, 4, '0', STR_PAD_LEFT),
                     'date' => now(),
@@ -170,16 +172,16 @@ class CommissionComponent extends Component
                     'commission_id' => $commission->id,
                 ]);
             }
-
+ 
             // invitation_file
             if ($this->invitation_file) {
-            $extension = $this->invitation_file->getClientOriginalExtension();
-            $filename = 'invitation-' . time() . '.' . $extension;
-            $path = $this->invitation_file->storeAs("commissions/{$commission->id}", $filename, 'public');
-            $commission->invitation_path = $path;
-            $commission->save();
+                $extension = $this->invitation_file->getClientOriginalExtension();
+                $filename = 'invitation-' . time() . '.' . $extension;
+                $path = $this->invitation_file->storeAs("commissions/{$commission->id}", $filename, 'public');
+                $commission->invitation_path = $path;
+                $commission->save();
             }
-
+ 
             // evidence_file
             if ($this->evidence_file) {
                 $filename = 'evidence-' . time() . '.' . $this->evidence_file->getClientOriginalExtension();
@@ -187,11 +189,11 @@ class CommissionComponent extends Component
                 $commission->evidence_path = Str::replaceFirst('public/', '', $storePath);
                 $commission->save();
             }
-
+ 
             DB::commit();
-
+ 
             session()->flash('message', $this->commission_id ? 'Comisión actualizada.' : 'Comisionado creado.');
-
+ 
             $this->resetFields();
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -202,7 +204,7 @@ class CommissionComponent extends Component
             ]);
             session()->flash('message', 'Error al crear/actualizar la comisión. Revisa el log.');
         }
-
+ 
         $this->dispatch('close-modal', name: 'new-commission');
     }
 

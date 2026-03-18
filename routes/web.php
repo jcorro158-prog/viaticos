@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DiagnosticController;
 use App\Livewire\CommissionComponent;
+use App\Livewire\DashboardComponent;
 use App\Livewire\Components\RegimeLevelGrades\IndexRegimeLevelGradeComponent;
 use App\Livewire\Components\Regimes\IndexRegimeComponent;
 use App\Livewire\Parameterization\DependenciesComponent;
@@ -24,7 +25,7 @@ if (config('app.debug')) {
     Route::get('diagnostic/microsoft/json', [DiagnosticController::class, 'microsoftTest']);
 }
 
-Route::view('dashboard', 'dashboard')
+Route::get('dashboard', DashboardComponent::class)
     ->middleware(['auth', 'verified', 'profile.complete'])
     ->name('dashboard');
 

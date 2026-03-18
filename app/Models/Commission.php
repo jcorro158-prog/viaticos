@@ -31,7 +31,9 @@ class Commission extends Model
     'dependency_id', 
     'budget_id', 
     'invitation_path', 
-    'evidence_path'
+    'evidence_path',
+    'expense_type',
+    'expense_value',
 ];
 
     /**

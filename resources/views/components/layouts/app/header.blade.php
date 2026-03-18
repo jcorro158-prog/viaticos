@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="dark">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         @include('partials.head')
     </head>
@@ -16,7 +16,8 @@
                 <flux:navbar.item :href="route('commissions')" :current="request()->routeIs('commissions')" icon="puzzle-piece">Comisiones</flux:navbar.item>
 
                 <flux:dropdown>
-                    <flux:navbar.item icon="cog-6-tooth" icon:trailing="chevron-down" :current="request()->routeIs('parametrization.job_positions') || request()->routeIs('parametrization.dependencies') || request()->routeIs('parametrization.vinculation') || request()->routeIs('parametrization.regimes') || request()->routeIs('parametrization.regimes.show', ['regimeId' => 1]) || request()->routeIs('parameterization.regimes.levels.grades.show')">Parametrización</flux:navbar.item>
+                    <flux:navbar.item icon="cog-6-tooth" icon:trailing="chevron-down" :current="request()->routeIs('parametrization.job_positions') || 
+request()->routeIs('parametrization.dependencies') || request()->routeIs('parametrization.vinculation') || request()->routeIs('parametrization.regimes') || request()->routeIs('parametrization.regimes.show', ['regimeId' => 1]) || request()->routeIs('parameterization.regimes.levels.grades.show')">Parametrización</flux:navbar.item>
 
                     <flux:navmenu class="space-y-1!">
                         <flux:navmenu.item class="{{ request()->routeIs('parametrization.job_positions') ? 'bg-white/10' : '' }}" :href="route('parametrization.job_positions')" :current="request()->routeIs('parametrization.job_positions')">Puestos</flux:navmenu.item>
@@ -33,7 +34,7 @@
                 <flux:tooltip :content="__('Search')" position="bottom">
                     <flux:navbar.item class="!h-10 [&>div>svg]:size-5" icon="magnifying-glass" href="#" :label="__('Search')" />
                 </flux:tooltip>
-                
+
                 <flux:tooltip :content="__('Documentation')" position="bottom">
                     <flux:navbar.item
                         class="h-10 max-lg:hidden [&>div>svg]:size-5"
@@ -44,6 +45,7 @@
                     />
                 </flux:tooltip>
             </flux:navbar>
+                
 
             <!-- Desktop User Menu -->
             <flux:dropdown position="top" align="end">
@@ -57,9 +59,7 @@
                         <div class="p-0 text-sm font-normal">
                             <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
                                 <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
-                                    <span
-                                        class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
-                                    >
+                                    <span class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white">
                                         {{ auth()->user()->initials() }}
                                     </span>
                                 </span>
@@ -122,6 +122,23 @@
         <div class="container mx-auto px-4">
             {{ $slot }}
         </div>
+
+        <script>
+            document.addEventListener('alpine:init', () => {
+                Alpine.store('theme', {
+                    dark: localStorage.getItem('theme') === 'dark' || 
+                          (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches),
+                    toggle() {
+                        this.dark = !this.dark;
+                        localStorage.setItem('theme', this.dark ? 'dark' : 'light');
+                        document.documentElement.classList.toggle('dark', this.dark);
+                    },
+                    init() {
+                        document.documentElement.classList.toggle('dark', this.dark);
+                    }
+                });
+            });
+        </script>
 
         @fluxScripts
     </body>
