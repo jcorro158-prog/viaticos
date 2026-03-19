@@ -42,6 +42,8 @@ class CommissionComponent extends Component
     // Gastos / Tipo
     public $expense_type = '';
     public $expense_value = null;
+    public $vehicle_plate = '';
+    public $driver_name = '';
 
     // Relaciones / referencias opcionales
     public $user_id = null;
@@ -73,6 +75,8 @@ class CommissionComponent extends Component
             'training_value' => 'nullable|numeric',
             'expense_type' => 'nullable|string',
             'expense_value' => 'nullable|numeric',
+            'vehicle_plate' => 'required_if:expense_type,Vehículo a cargo de la Alcaldía|nullable|string|max:20',
+            'driver_name' => 'required_if:expense_type,Vehículo a cargo de la Alcaldía|nullable|string|max:255',
             'invitation_file' => 'nullable|file|max:10240', // 10MB
             'evidence_file' => 'nullable|file|max:10240',
             'user_id' => 'nullable|integer',
@@ -99,6 +103,8 @@ class CommissionComponent extends Component
         $this->training_value = null;
         $this->expense_type = '';
         $this->expense_value = null;
+        $this->vehicle_plate = '';
+        $this->driver_name = '';
         $this->user_id = null;
         $this->commission_status_id = null;
         $this->dependency_id = null;
@@ -145,6 +151,8 @@ class CommissionComponent extends Component
                 'training_expenses' => ($this->training_gastos_toggle === '1') ? (float) str_replace(['.', ','], ['', '.'], $this->training_value ?: '0') : 0,
                 'expense_type' => $this->expense_type ?: null,
                 'expense_value' => $this->expense_value ? (float) str_replace(['.', ','], ['', '.'], $this->expense_value) : null,
+                'vehicle_plate' => $this->expense_type === 'Vehículo a cargo de la Alcaldía' ? ($this->vehicle_plate ?: null) : null,
+                'driver_name' => $this->expense_type === 'Vehículo a cargo de la Alcaldía' ? ($this->driver_name ?: null) : null,
                 'user_id' => $this->user_id ?: auth()->id(),
                 'commission_status_id' => $this->commission_status_id ?: null,
                 'dependency_id' => $dependencyId,
@@ -231,6 +239,8 @@ class CommissionComponent extends Component
             $this->training_value = $commission->training_expenses ?? null;
             $this->expense_type = $commission->expense_type ?? '';
             $this->expense_value = $commission->expense_value ?? null;
+            $this->vehicle_plate = $commission->vehicle_plate ?? '';
+            $this->driver_name = $commission->driver_name ?? '';
             $this->user_id = $commission->user_id ?? null;
             $this->commission_status_id = $commission->commission_status_id ?? null;
             $this->dependency_id = $commission->dependency_id ?? null;
@@ -314,5 +324,13 @@ class CommissionComponent extends Component
         return view('livewire.commission-component', [
             'commissions' => $commissions,
         ]);
+    }
+
+    public function updatedExpenseType($value)
+    {
+        if ($value !== 'Vehículo a cargo de la Alcaldía') {
+            $this->vehicle_plate = '';
+            $this->driver_name = '';
+        }
     }
 }

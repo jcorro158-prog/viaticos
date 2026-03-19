@@ -34,6 +34,8 @@ class Commission extends Model
     'evidence_path',
     'expense_type',
     'expense_value',
+    'vehicle_plate',
+    'driver_name',
 ];
 
     /**

@@ -136,7 +136,7 @@
 
             <div class="grid grid-cols-1 gap-4 pb-4 px-4">
                 <div class="flex items-center gap-1">
-                    <span class="font-bold text-lg text-orange-500">Descargar:</span>
+                    <span class="font-bold text-lg text-orange-500">Archivos:</span>
                     <flux:dropdown>
                         <button class="pt-2 cursor-pointer outline-none">
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -146,16 +146,16 @@
                         </button>
                         <flux:menu>
                             @if(!empty($commission->invitation_path))
-                                <flux:menu.item href="{{ asset('storage/' . $commission->invitation_path) }}" target="_blank">Ver Invitacion</flux:menu.item>
+                                <flux:menu.item disabled class="opacity-70">Invitación cargada</flux:menu.item>
                             @else
-                                <flux:menu.item disabled class="opacity-50">Invitacion (No disponible)</flux:menu.item>
+                                <flux:menu.item disabled class="opacity-50">Invitación pendiente</flux:menu.item>
                             @endif
                             <flux:menu.separator />
                             @if(!empty($commission->evidence_path))
-                                <flux:menu.item href="{{ asset('storage/' . $commission->evidence_path) }}" target="_blank">Ver Evidencias</flux:menu.item>
+                                <flux:menu.item disabled class="opacity-70">Evidencia final cargada</flux:menu.item>
                             @else
                                 <flux:modal.trigger name="upload-evidence-{{ $commission->id }}">
-                                    <flux:menu.item>Subir Evidencias</flux:menu.item>
+                                    <flux:menu.item>Subir evidencia final</flux:menu.item>
                                 </flux:modal.trigger>
                             @endif
                         </flux:menu>
@@ -166,9 +166,9 @@
             <flux:modal name="upload-evidence-{{ $commission->id }}" class="max-w-md" wire:ignore.self
                 x-on:close-modal.window="$event.detail.name === 'upload-evidence-{{ $commission->id }}' && $flux.modal('upload-evidence-{{ $commission->id }}').close()">
                 <form wire:submit.prevent="uploadEvidence({{ $commission->id }})" enctype="multipart/form-data" class="space-y-4">
-                    <flux:heading>Subir Evidencias</flux:heading>
+                    <flux:heading>Subir evidencia final</flux:heading>
                     <flux:field>
-                        <flux:label>Seleccione el archivo de evidencia</flux:label>
+                        <flux:label>Seleccione el archivo de evidencia final</flux:label>
                         <flux:input type="file" wire:model="evidence_file" wire:key="evid-{{ $commission->id }}" />
                         <div wire:loading wire:target="evidence_file" class="mt-2 space-y-1">
                             <div class="text-xs text-orange-400">
@@ -294,11 +294,14 @@
 
                 <flux:field>
                     <flux:label>Tipo de gastos</flux:label>
-                    <flux:select wire:model="expense_type">
-                        <flux:select.option>Viáticos</flux:select.option>
-                        <flux:select.option>Transporte</flux:select.option>
-                        <flux:select.option>Alimentación</flux:select.option>
-                        <flux:select.option>Hospedaje</flux:select.option>                                            
+                    <flux:select wire:model.live="expense_type">
+                        <flux:select.option value="">- Seleccione -</flux:select.option>
+                        <flux:select.option value="Vehículo a cargo de la Alcaldía">Vehículo a cargo de la Alcaldía</flux:select.option>
+                        <flux:select.option value="Transporte Aéreo contratado">Transporte Aéreo contratado</flux:select.option>
+                        <flux:select.option value="Tiquetes de peajes">Tiquetes de peajes</flux:select.option>
+                        <flux:select.option value="Parqueadero">Parqueadero</flux:select.option>
+                        <flux:select.option value="Tiquetes Terrestres">Tiquetes Terrestres</flux:select.option>
+                        <flux:select.option value="Tiquetes Aéreos">Tiquetes Aéreos</flux:select.option>
                     </flux:select>
                 </flux:field>
 
@@ -306,6 +309,18 @@
                     <flux:label>Valor de gastos</flux:label>
                     <flux:input icon="currency-dollar" x-mask:dynamic="$money($input, ',')" wire:model="expense_value" />
                 </flux:field>
+
+                @if($expense_type === 'Vehículo a cargo de la Alcaldía')
+                    <flux:field>
+                        <flux:label>Placa del vehículo</flux:label>
+                        <flux:input wire:model="vehicle_plate" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Nombre del conductor</flux:label>
+                        <flux:input wire:model="driver_name" />
+                    </flux:field>
+                @endif
 
                 <flux:field>
                     <flux:label>Invitación</flux:label>
