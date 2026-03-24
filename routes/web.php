@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ComisionadoController;
 use App\Http\Controllers\DiagnosticController;
 use App\Livewire\CommissionComponent;
 use App\Livewire\DashboardComponent;
@@ -40,6 +41,10 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', 'profile.complete'])->group(function () {
     Route::get('/usuarios', UsersComponent::class)->name('users');
     Route::get('/comisiones', CommissionComponent::class)->name('commissions');
+
+    // Búsqueda de funcionario por cédula
+    Route::get('/funcionario/buscar', [ComisionadoController::class, 'buscarPorCedula'])
+        ->name('funcionario.buscar');
 
     Route::get('/parametrizacion/puestos', JobPositionComponent::class)->name('parametrization.job_positions');
     Route::get('/parametrizacion/dependencias', DependenciesComponent::class)->name('parametrization.dependencies');

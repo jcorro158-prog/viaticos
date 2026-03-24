@@ -9,10 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('commissions', function (Blueprint $col) {
-            // Guardará la ruta de la invitación (PDF/Imagen)
-            $col->string('invitation_path')->nullable()->after('description');
-            
-            // Guardará la ruta de la evidencia final
+            $col->string('invitation_path')->nullable()->after('training_expenses');
             $col->string('evidence_path')->nullable()->after('invitation_path');
         });
     }

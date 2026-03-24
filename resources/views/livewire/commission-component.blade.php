@@ -1,10 +1,10 @@
 <div x-data="{ progress: 50 }">
     {{-- MENSAJES DE NOTIFICACIÓN --}}
     @if (session()->has('message'))
-        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)" 
-             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-90" 
-             x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-300" 
-             x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-90" 
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 4000)"
+             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 transform scale-90"
+             x-transition:enter-end="opacity-100 transform scale-100" x-transition:leave="transition ease-in duration-300"
+             x-transition:leave-start="opacity-100 transform scale-100" x-transition:leave-end="opacity-0 transform scale-90"
              class="mb-4 p-4 bg-green-500/20 border border-green-500 text-green-200 rounded-lg flex justify-between items-center shadow-lg">
             <div class="flex items-center gap-2">
                 <flux:icon.check-circle variant="solid" class="text-green-500" />
@@ -40,11 +40,9 @@
                     <span class="flex items-center justify-center bg-orange-600 !text-white font-bold h-8 w-8 rounded-lg shadow-sm mr-2 text-sm">
                         {{ $loop->iteration }}
                     </span>
-
                     <flux:badge size="lg" variant="solid" color="zinc">
                         {{ $commission->commissionStatus->name ?? 'Asignado' }}
                     </flux:badge>
-
                     <span class="font-light">
                         <strong class="font-bold">N° resolución:</strong>
                         {{ $commission->resolutions->first()->number ?? '1472' }}
@@ -58,16 +56,14 @@
                         </flux:modal.trigger>
                         <flux:button variant="ghost" size="sm" icon="trash" wire:click="delete({{ $commission->id }})" wire:confirm="¿Estás seguro de que deseas eliminar este comisionado?" class="text-red-400 hover:text-red-300" />
                     </div>
-
                     <div class="flex items-center gap-1">
                         <span class="font-bold text-lg text-orange-500">Nombre:</span>
                         <span class="font-light">{{ $commission->user->name ?? 'Miguel Angel Rueda Palencia' }}</span>
                     </div>
-    
                     <flux:dropdown>
                         <flux:button variant="primary" icon:trailing="chevron-down">Opciones</flux:button>
                         <flux:menu>
-                            <flux:modal.trigger name="view-commission"><flux:menu.item>Aprobación talento humano a secretria x</flux:menu.item></flux:modal.trigger>
+                            <flux:modal.trigger name="view-commission"><flux:menu.item>Aprobación talento humano a secretría x</flux:menu.item></flux:modal.trigger>
                             <flux:menu.separator />
                             <flux:modal.trigger name="view-commission"><flux:menu.item>Rechazar rechazo hacienda a talento humano</flux:menu.item></flux:modal.trigger>
                             <flux:menu.separator />
@@ -75,11 +71,11 @@
                             <flux:menu.separator />
                             <flux:modal.trigger name="view-commission"><flux:menu.item>Rechazar rechazo hacienda a talento humano</flux:menu.item></flux:modal.trigger>
                             <flux:menu.separator />
-                            <flux:modal.trigger name="view-commission"><flux:menu.item>Aprobación talento humnao a hacienda</flux:menu.item></flux:modal.trigger>
+                            <flux:modal.trigger name="view-commission"><flux:menu.item>Aprobación talento humano a hacienda</flux:menu.item></flux:modal.trigger>
                             <flux:menu.separator />
                             <flux:modal.trigger name="view-commission"><flux:menu.item>Rechazar talento humano a secretaria x</flux:menu.item></flux:modal.trigger>
                             <flux:menu.separator />
-                            <flux:modal.trigger name="view-commission"><flux:menu.item>Aprobación secretria x</flux:menu.item></flux:modal.trigger>
+                            <flux:modal.trigger name="view-commission"><flux:menu.item>Aprobación secretría x</flux:menu.item></flux:modal.trigger>
                             <flux:menu.separator />
                             <flux:modal.trigger name="view-commission"><flux:menu.item>Rechazar secretaria x</flux:menu.item></flux:modal.trigger>
                             <flux:menu.separator />
@@ -101,8 +97,8 @@
                     <span class="font-light">{{ $commission->end_date->format('d/m/Y') }}</span>
                 </div>
                 <div class="flex items-center gap-1">
-                   <span class="font-bold text-lg text-orange-500">Cédula:</span>
-                   <span class="font-light">{{ $commission->identification ?? 'Sin asignar' }}</span>
+                    <span class="font-bold text-lg text-orange-500">Cédula:</span>
+                    <span class="font-light">{{ $commission->identification ?? 'Sin asignar' }}</span>
                 </div>
                 <div class="flex items-center gap-1">
                     <span class="font-bold text-lg text-orange-500">Gastos de capacitación:</span>
@@ -171,21 +167,13 @@
                         <flux:label>Seleccione el archivo de evidencia final</flux:label>
                         <flux:input type="file" wire:model="evidence_file" wire:key="evid-{{ $commission->id }}" />
                         <div wire:loading wire:target="evidence_file" class="mt-2 space-y-1">
-                            <div class="text-xs text-orange-400">
-                                <span>Subiendo archivo...</span>
-                            </div>
+                            <div class="text-xs text-orange-400"><span>Subiendo archivo...</span></div>
                             <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
                                 <div class="h-full bg-orange-500 rounded-full"
                                     x-data="{ width: 0 }"
-                                    x-init="
-                                        let interval = setInterval(() => {
-                                            if (width >= 90) clearInterval(interval);
-                                            width += 2;
-                                        }, 50);
-                                    "
+                                    x-init="let interval = setInterval(() => { if (width >= 90) clearInterval(interval); width += 2; }, 50);"
                                     :style="'width: ' + width + '%'"
-                                    style="transition: width 0.1s ease;">
-                                </div>
+                                    style="transition: width 0.1s ease;"></div>
                             </div>
                         </div>
                     </flux:field>
@@ -204,7 +192,7 @@
     @endforeach
 
     {{-- MODAL GESTIÓN COMISIÓN --}}
-    <flux:modal name="new-commission" class="w-full max-w-3xl" wire:ignore.self
+    <flux:modal name="new-commission" class="w-full max-w-6xl" wire:ignore.self
         x-on:close-modal.window="$event.detail.name === 'new-commission' && $flux.modal('new-commission').close()">
         <form wire:submit="save" enctype="multipart/form-data" class="space-y-6">
             <div>
@@ -212,143 +200,246 @@
                 <flux:text class="mt-2">{{ __('Complete los detalles para gestionar la comisión del funcionario.') }}</flux:text>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <flux:field class="sm:col-span-2">
+            {{-- PASO 1: CÉDULA + BÚSQUEDA --}}
+            <div class="space-y-4">
+                <flux:field>
                     <flux:label>Objetivo de la Comisión</flux:label>
-                    <flux:textarea wire:model="objective" />
+                    <flux:textarea wire:model="objective" rows="3" />
                 </flux:field>
 
-                <flux:field class="sm:col-span-2">
+                <div class="space-y-3">
                     <flux:label>Cédula / Identificación</flux:label>
-                    <flux:input wire:model="identification" inputmode="numeric" maxlength="12" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)" />
-                </flux:field>
+                    <div class="flex gap-2 items-center">
+                        <flux:input
+                            wire:model="identification"
+                            inputmode="numeric"
+                            maxlength="12"
+                            placeholder="Ingrese la cédula del funcionario"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)"
+                            class="flex-1"
+                        />
+                        <flux:button
+                            wire:click="buscarFuncionario"
+                            wire:loading.attr="disabled"
+                            variant="filled"
+                            icon="magnifying-glass"
+                            title="Buscar funcionario"
+                        >
+                            <span wire:loading wire:target="buscarFuncionario">Buscando...</span>
+                            <span wire:loading.remove wire:target="buscarFuncionario">Buscar</span>
+                        </flux:button>
+                    </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 col-span-1 sm:col-span-2">
+                    {{-- Error --}}
+                    @if($busqueda_error)
+                        <div class="flex items-center gap-2 text-red-400 text-sm bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
+                            <flux:icon.exclamation-circle class="text-red-400 shrink-0" />
+                            <span>{{ $busqueda_error }}</span>
+                        </div>
+                    @endif
+
+                    {{-- Resultado de búsqueda --}}
+                    @if($funcionario_encontrado && !$funcionario_confirmado)
+                        <div class="rounded-xl border border-orange-500/40 bg-orange-500/5 p-4 space-y-4">
+                            <p class="text-orange-400 text-xs font-semibold uppercase tracking-widest">
+                                Funcionario encontrado — verifique los datos antes de continuar
+                            </p>
+                            <div class="overflow-x-auto">
+                                <table style="width:100%; border-collapse:collapse; font-size:13px;">
+                                    <thead>
+                                        <tr style="background:rgba(249,115,22,0.15);">
+                                            <th style="padding:8px 12px; text-align:left; border:1px solid rgba(249,115,22,0.3); color:#fb923c; font-weight:600; white-space:nowrap;">Nombre</th>
+                                            <th style="padding:8px 12px; text-align:left; border:1px solid rgba(249,115,22,0.3); color:#fb923c; font-weight:600; white-space:nowrap;">Vinculación</th>
+                                            <th style="padding:8px 12px; text-align:left; border:1px solid rgba(249,115,22,0.3); color:#fb923c; font-weight:600; white-space:nowrap;">Cargo</th>
+                                            <th style="padding:8px 12px; text-align:center; border:1px solid rgba(249,115,22,0.3); color:#fb923c; font-weight:600; white-space:nowrap;">Código</th>
+                                            <th style="padding:8px 12px; text-align:center; border:1px solid rgba(249,115,22,0.3); color:#fb923c; font-weight:600; white-space:nowrap;">Grado</th>
+                                            <th style="padding:8px 12px; text-align:left; border:1px solid rgba(249,115,22,0.3); color:#fb923c; font-weight:600; white-space:nowrap;">Dependencia</th>
+                                            <th style="padding:8px 12px; text-align:right; border:1px solid rgba(249,115,22,0.3); color:#fb923c; font-weight:600; white-space:nowrap;">Salario</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="background:rgba(255,255,255,0.03);">
+                                            <td style="padding:10px 12px; border:1px solid rgba(255,255,255,0.1); color:#fff; font-weight:500;">{{ $funcionario_encontrado['nombre'] }}</td>
+                                            <td style="padding:10px 12px; border:1px solid rgba(255,255,255,0.1); color:#fff;">{{ $funcionario_encontrado['vinculacion'] }}</td>
+                                            <td style="padding:10px 12px; border:1px solid rgba(255,255,255,0.1); color:#fff;">{{ $funcionario_encontrado['cargo'] }}</td>
+                                            <td style="padding:10px 12px; border:1px solid rgba(255,255,255,0.1); color:#fff; text-align:center;">{{ $funcionario_encontrado['codigo'] }}</td>
+                                            <td style="padding:10px 12px; border:1px solid rgba(255,255,255,0.1); color:#fff; text-align:center;">{{ $funcionario_encontrado['grado'] }}</td>
+                                            <td style="padding:10px 12px; border:1px solid rgba(255,255,255,0.1); color:#fff;">{{ $funcionario_encontrado['dependencia'] }}</td>
+                                            <td style="padding:10px 12px; border:1px solid rgba(255,255,255,0.1); color:#fb923c; font-weight:700; text-align:right; white-space:nowrap;">$ {{ number_format($funcionario_encontrado['salario'], 0, ',', '.') }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <flux:button wire:click="confirmarFuncionario" variant="primary" icon="check-circle" class="w-full">
+                                Confirmar funcionario y continuar con el formulario
+                            </flux:button>
+                        </div>
+                    @endif
+
+                    {{-- Confirmado --}}
+                    @if($funcionario_confirmado && $funcionario_encontrado)
+                        <div class="rounded-xl border border-green-500/40 bg-green-500/5 p-3 space-y-2">
+                            <p class="text-green-400 text-xs font-semibold uppercase tracking-widest">Funcionario confirmado</p>
+                            <div class="overflow-x-auto">
+                                <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                                    <thead>
+                                        <tr style="background:rgba(34,197,94,0.1);">
+                                            <th style="padding:6px 10px; text-align:left; border:1px solid rgba(34,197,94,0.2); color:#86efac; font-weight:600; white-space:nowrap;">Nombre</th>
+                                            <th style="padding:6px 10px; text-align:left; border:1px solid rgba(34,197,94,0.2); color:#86efac; font-weight:600; white-space:nowrap;">Vinculación</th>
+                                            <th style="padding:6px 10px; text-align:left; border:1px solid rgba(34,197,94,0.2); color:#86efac; font-weight:600; white-space:nowrap;">Cargo</th>
+                                            <th style="padding:6px 10px; text-align:center; border:1px solid rgba(34,197,94,0.2); color:#86efac; font-weight:600; white-space:nowrap;">Código</th>
+                                            <th style="padding:6px 10px; text-align:center; border:1px solid rgba(34,197,94,0.2); color:#86efac; font-weight:600; white-space:nowrap;">Grado</th>
+                                            <th style="padding:6px 10px; text-align:left; border:1px solid rgba(34,197,94,0.2); color:#86efac; font-weight:600; white-space:nowrap;">Dependencia</th>
+                                            <th style="padding:6px 10px; text-align:right; border:1px solid rgba(34,197,94,0.2); color:#86efac; font-weight:600; white-space:nowrap;">Salario</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr style="background:rgba(255,255,255,0.02);">
+                                            <td style="padding:8px 10px; border:1px solid rgba(255,255,255,0.08); color:#fff; font-weight:500;">{{ $funcionario_encontrado['nombre'] }}</td>
+                                            <td style="padding:8px 10px; border:1px solid rgba(255,255,255,0.08); color:#fff;">{{ $funcionario_encontrado['vinculacion'] }}</td>
+                                            <td style="padding:8px 10px; border:1px solid rgba(255,255,255,0.08); color:#fff;">{{ $funcionario_encontrado['cargo'] }}</td>
+                                            <td style="padding:8px 10px; border:1px solid rgba(255,255,255,0.08); color:#fff; text-align:center;">{{ $funcionario_encontrado['codigo'] }}</td>
+                                            <td style="padding:8px 10px; border:1px solid rgba(255,255,255,0.08); color:#fff; text-align:center;">{{ $funcionario_encontrado['grado'] }}</td>
+                                            <td style="padding:8px 10px; border:1px solid rgba(255,255,255,0.08); color:#fff;">{{ $funcionario_encontrado['dependencia'] }}</td>
+                                            <td style="padding:8px 10px; border:1px solid rgba(255,255,255,0.08); color:#fb923c; font-weight:700; text-align:right; white-space:nowrap;">$ {{ number_format($funcionario_encontrado['salario'], 0, ',', '.') }}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- PASO 2: RESTO DEL FORMULARIO — bloqueado hasta confirmar --}}
+            <div class="{{ !$funcionario_confirmado ? 'opacity-40 pointer-events-none select-none' : '' }} space-y-4 transition-opacity duration-300">
+
+                @if(!$funcionario_confirmado)
+                    <div class="flex items-center gap-2 text-amber-400 text-sm bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2">
+                        <flux:icon.lock-closed class="text-amber-400 shrink-0" />
+                        <span>Debe confirmar el funcionario antes de continuar.</span>
+                    </div>
+                @endif
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 col-span-1 sm:col-span-2">
+                        <flux:field>
+                            <flux:label>Fecha de Inicio</flux:label>
+                            <flux:input type="date" wire:model="start_date" />
+                        </flux:field>
+                        <flux:field>
+                            <flux:label>Fecha de Finalización</flux:label>
+                            <flux:input type="date" wire:model="end_date" />
+                        </flux:field>
+                        <flux:field>
+                            <flux:label>¿Comisión en el exterior?</flux:label>
+                            <flux:select wire:model.live="is_exterior">
+                                <flux:select.option value="0">No</flux:select.option>
+                                <flux:select.option value="1">Si</flux:select.option>
+                            </flux:select>
+                        </flux:field>
+                    </div>
+
+                    @if(($is_exterior ?? '0') == '1')
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 col-span-1 sm:col-span-2 p-4 bg-zinc-800/50 rounded-lg border border-orange-500/30">
+                            <flux:field>
+                                <flux:label>Zona a la que se dirige</flux:label>
+                                <flux:select wire:model="exterior_zone">
+                                    <flux:select.option value="">- Seleccione -</flux:select.option>
+                                    <flux:select.option value="centro_sur_america">Centro América, El Caribe y Suramérica excepto Brasil, Chile, Argentina y Puerto Rico</flux:select.option>
+                                    <flux:select.option value="norte_america_otros">Estados Unidos, Canadá, Chile, Brasil, África y Puerto Rico</flux:select.option>
+                                    <flux:select.option value="europa_asia">Europa, Asia, Oceanía, Mexico y Argentina</flux:select.option>
+                                </flux:select>
+                            </flux:field>
+                            <flux:field>
+                                <flux:label>Valor del dólar (TRM)</flux:label>
+                                <flux:input icon="currency-dollar" wire:model="dollar_value" />
+                            </flux:field>
+                        </div>
+                    @endif
+
                     <flux:field>
-                        <flux:label>Fecha de Inicio</flux:label>
-                        <flux:input type="date" wire:model="start_date" />
+                        <flux:label>Destino de la Comisión</flux:label>
+                        <flux:input wire:model="destination" />
                     </flux:field>
+
                     <flux:field>
-                        <flux:label>Fecha de Finalización</flux:label>
-                        <flux:input type="date" wire:model="end_date" />
-                    </flux:field>
-                    <flux:field>
-                        <flux:label>¿Comisión en el exterior?</flux:label>
-                        <flux:select wire:model.live="is_exterior">
+                        <flux:label>Gastos de capacitación</flux:label>
+                        <flux:select wire:model.live="training_gastos_toggle">
                             <flux:select.option value="0">No</flux:select.option>
                             <flux:select.option value="1">Si</flux:select.option>
                         </flux:select>
                     </flux:field>
-                </div>
 
-                {{-- DESPLIEGUE EXTERIOR --}}
-                @if(($is_exterior ?? '0') == '1')
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 col-span-1 sm:col-span-2 p-4 bg-zinc-800/50 rounded-lg border border-orange-500/30">
-                        <flux:field>
-                            <flux:label>Zona a la que se dirige</flux:label>
-                            <flux:select wire:model="exterior_zone">
-                                <flux:select.option value="">- Seleccione -</flux:select.option>
-                                <flux:select.option value="centro_sur_america">Centro América, El Caribe y Suramérica exepto Brasil, Chile, Argentina y Puerto Rico</flux:select.option>
-                                <flux:select.option value="norte_america_otros">Estados Unidos, Canadá, Chile, Brasil, África y Puerto Rico</flux:select.option>
-                                <flux:select.option value="europa_asia">Europa, Asia, Oseanía, Mexico y Argentina</flux:select.option>
-                            </flux:select>
-                        </flux:field>
-                        <flux:field>
-                            <flux:label>Valor del dólar (TRM)</flux:label>
-                            <flux:input icon="currency-dollar" wire:model="dollar_value" />
-                        </flux:field>
-                    </div>
-                @endif
-
-                <flux:field>
-                    <flux:label>Destino de la Comisión</flux:label>
-                    <flux:input wire:model="destination" />
-                </flux:field>
-
-                <flux:field>
-                    <flux:label>Gastos de capacitación</flux:label>
-                    <flux:select wire:model.live="training_gastos_toggle">
-                        <flux:select.option value="0">No</flux:select.option>
-                        <flux:select.option value="1">Si</flux:select.option>
-                    </flux:select>
-                </flux:field>
-
-                {{-- DESPLIEGUE CAPACITACIÓN --}}
-                @if(($training_gastos_toggle ?? '0') == '1')
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 col-span-1 sm:col-span-2 p-4 bg-blue-900/20 rounded-lg border border-blue-500/30">
-                        <flux:field>
-                            <flux:label>Detalles de capacitación</flux:label>
-                            <flux:textarea wire:model="training_details" placeholder="¿Qué capacitación es?" />
-                        </flux:field>
-                        <flux:field>
-                            <flux:label>Valor de capacitación</flux:label>
-                            <flux:input icon="currency-dollar" x-mask:dynamic="$money($input, ',')" wire:model="training_value" placeholder="0,00" />
-                        </flux:field>
-                    </div>
-                @endif
-
-                <flux:field class="col-span-1 sm:col-span-2">
-                    <flux:label>Descripción adicional</flux:label>
-                    <flux:textarea wire:model="description" />
-                </flux:field>
-
-                <flux:field>
-                    <flux:label>Tipo de gastos</flux:label>
-                    <flux:select wire:model.live="expense_type">
-                        <flux:select.option value="">- Seleccione -</flux:select.option>
-                        <flux:select.option value="Vehículo a cargo de la Alcaldía">Vehículo a cargo de la Alcaldía</flux:select.option>
-                        <flux:select.option value="Transporte Aéreo contratado">Transporte Aéreo contratado</flux:select.option>
-                        <flux:select.option value="Tiquetes de peajes">Tiquetes de peajes</flux:select.option>
-                        <flux:select.option value="Parqueadero">Parqueadero</flux:select.option>
-                        <flux:select.option value="Tiquetes Terrestres">Tiquetes Terrestres</flux:select.option>
-                        <flux:select.option value="Tiquetes Aéreos">Tiquetes Aéreos</flux:select.option>
-                    </flux:select>
-                </flux:field>
-
-                <flux:field>
-                    <flux:label>Valor de gastos</flux:label>
-                    <flux:input icon="currency-dollar" x-mask:dynamic="$money($input, ',')" wire:model="expense_value" />
-                </flux:field>
-
-                @if($expense_type === 'Vehículo a cargo de la Alcaldía')
-                    <flux:field>
-                        <flux:label>Placa del vehículo</flux:label>
-                        <flux:input wire:model="vehicle_plate" />
-                    </flux:field>
-
-                    <flux:field>
-                        <flux:label>Nombre del conductor</flux:label>
-                        <flux:input wire:model="driver_name" />
-                    </flux:field>
-                @endif
-
-                <flux:field>
-                    <flux:label>Invitación</flux:label>
-                    <flux:input type="file" wire:model="invitation_file" wire:key="inv-{{ $commission_id ?? 'new' }}" />
-                    <div wire:loading wire:target="invitation_file" class="mt-2 space-y-1">
-                        <div class="flex justify-between text-xs text-orange-400">
-                            <span>Subiendo archivo...</span>
+                    @if(($training_gastos_toggle ?? '0') == '1')
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 col-span-1 sm:col-span-2 p-4 bg-blue-900/20 rounded-lg border border-blue-500/30">
+                            <flux:field>
+                                <flux:label>Detalles de capacitación</flux:label>
+                                <flux:textarea wire:model="training_details" placeholder="¿Qué capacitación es?" />
+                            </flux:field>
+                            <flux:field>
+                                <flux:label>Valor de capacitación</flux:label>
+                                <flux:input icon="currency-dollar" x-mask:dynamic="$money($input, ',')" wire:model="training_value" placeholder="0,00" />
+                            </flux:field>
                         </div>
-                        <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-                            <div class="h-full bg-orange-500 rounded-full"
-                                x-data="{ width: 0 }"
-                                x-init="
-                                    let interval = setInterval(() => {
-                                        if (width >= 90) clearInterval(interval);
-                                        width += 2;
-                                    }, 50);
-                                "
-                                :style="'width: ' + width + '%'"
-                                style="transition: width 0.1s ease;">
+                    @endif
+
+                    <flux:field class="col-span-1 sm:col-span-2">
+                        <flux:label>Descripción adicional</flux:label>
+                        <flux:textarea wire:model="description" />
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Tipo de gastos</flux:label>
+                        <flux:select wire:model.live="expense_type">
+                            <flux:select.option value="">- Seleccione -</flux:select.option>
+                            <flux:select.option value="Vehículo a cargo de la Alcaldía">Vehículo a cargo de la Alcaldía</flux:select.option>
+                            <flux:select.option value="Transporte Aéreo contratado">Transporte Aéreo contratado</flux:select.option>
+                            <flux:select.option value="Tiquetes de peajes">Tiquetes de peajes</flux:select.option>
+                            <flux:select.option value="Parqueadero">Parqueadero</flux:select.option>
+                            <flux:select.option value="Tiquetes Terrestres">Tiquetes Terrestres</flux:select.option>
+                            <flux:select.option value="Tiquetes Aéreos">Tiquetes Aéreos</flux:select.option>
+                        </flux:select>
+                    </flux:field>
+
+                    <flux:field>
+                        <flux:label>Valor de gastos</flux:label>
+                        <flux:input icon="currency-dollar" x-mask:dynamic="$money($input, ',')" wire:model="expense_value" />
+                    </flux:field>
+
+                    @if($expense_type === 'Vehículo a cargo de la Alcaldía')
+                        <flux:field>
+                            <flux:label>Placa del vehículo</flux:label>
+                            <flux:input wire:model="vehicle_plate" />
+                        </flux:field>
+                        <flux:field>
+                            <flux:label>Nombre del conductor</flux:label>
+                            <flux:input wire:model="driver_name" />
+                        </flux:field>
+                    @endif
+
+                    <flux:field>
+                        <flux:label>Invitación</flux:label>
+                        <flux:input type="file" wire:model="invitation_file" wire:key="inv-{{ $commission_id ?? 'new' }}" />
+                        <div wire:loading wire:target="invitation_file" class="mt-2 space-y-1">
+                            <div class="flex justify-between text-xs text-orange-400">
+                                <span>Subiendo archivo...</span>
+                            </div>
+                            <div class="w-full h-1 bg-white/10 rounded-full overflow-hidden">
+                                <div class="h-full bg-orange-500 rounded-full"
+                                    x-data="{ width: 0 }"
+                                    x-init="let interval = setInterval(() => { if (width >= 90) clearInterval(interval); width += 2; }, 50);"
+                                    :style="'width: ' + width + '%'"
+                                    style="transition: width 0.1s ease;"></div>
                             </div>
                         </div>
-                    </div>
-                </flux:field>
+                    </flux:field>
+                </div>
             </div>
 
             <div class="flex">
                 <flux:spacer />
-                <flux:button type="submit" variant="primary">
+                <flux:button type="submit" variant="primary" :disabled="!$funcionario_confirmado">
                     {{ $commission_id ? __('Guardar Cambios') : __('Crear Comisionado') }}
                 </flux:button>
             </div>

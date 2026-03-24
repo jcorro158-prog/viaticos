@@ -19,14 +19,14 @@ class CommissionComponent extends Component
     // Identificador de edición
     public $commission_id = null;
 
-    // Campos del formulario (mapeados al modelo Commission)
+    // Campos del formulario
     public $objective = '';
     public $identification = '';
     public $start_date = null;
     public $end_date = null;
 
-    // Exterior (abroad)
-    public $is_exterior = '0'; // '0' => No, '1' => Si
+    // Exterior
+    public $is_exterior = '0';
     public $exterior_zone = '';
     public $dollar_value = null;
 
@@ -34,89 +34,175 @@ class CommissionComponent extends Component
     public $destination = '';
     public $description = '';
 
-    // Campos relacionados con 'Gastos de capacitación'
-    public $training_gastos_toggle = '0'; // control en la vista (0/1)
+    // Capacitación
+    public $training_gastos_toggle = '0';
     public $training_details = '';
-    public $training_value = null; // se mapea a training_expenses
+    public $training_value = null;
 
-    // Gastos / Tipo
+    // Gastos
     public $expense_type = '';
     public $expense_value = null;
     public $vehicle_plate = '';
     public $driver_name = '';
 
-    // Relaciones / referencias opcionales
+    // Relaciones
     public $user_id = null;
     public $commission_status_id = null;
     public $dependency_id = null;
     public $budget_id = null;
 
-    // Archivos temporales (Livewire WithFileUploads)
+    // Archivos
     public $invitation_file;
     public $evidence_file;
 
-    // Filtros / Otros
+    // Filtros
     public $industry;
+
+    // ── BÚSQUEDA DE FUNCIONARIO POR CÉDULA ──
+    public $funcionario_encontrado = null;   // array con los datos
+    public $funcionario_confirmado = false;   // true cuando el usuario confirma
+    public $busqueda_error = '';              // mensaje de error
+
+    // ────────────────────────────────────────
 
     protected function rules()
     {
         return [
-            'objective' => 'required|string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'identification' => 'nullable|numeric',
-            'is_exterior' => 'nullable',
-            'exterior_zone' => 'nullable|string',
-            'dollar_value' => 'nullable|numeric',
-            'destination' => 'nullable|string',
-            'description' => 'nullable|string',
-            'training_gastos_toggle' => 'nullable',
-            'training_details' => 'required_if:training_gastos_toggle,1|string',
-            'training_value' => 'nullable|numeric',
-            'expense_type' => 'nullable|string',
-            'expense_value' => 'nullable|numeric',
-            'vehicle_plate' => 'required_if:expense_type,Vehículo a cargo de la Alcaldía|nullable|string|max:20',
-            'driver_name' => 'required_if:expense_type,Vehículo a cargo de la Alcaldía|nullable|string|max:255',
-            'invitation_file' => 'nullable|file|max:10240', // 10MB
-            'evidence_file' => 'nullable|file|max:10240',
-            'user_id' => 'nullable|integer',
-            'commission_status_id' => 'nullable|integer',
-            'dependency_id' => 'nullable|integer',
-            'budget_id' => 'nullable|integer',
+            'objective'               => 'required|string',
+            'start_date'              => 'required|date',
+            'end_date'                => 'required|date|after_or_equal:start_date',
+            'identification'          => 'nullable|numeric',
+            'is_exterior'             => 'nullable',
+            'exterior_zone'           => 'nullable|string',
+            'dollar_value'            => 'nullable|numeric',
+            'destination'             => 'nullable|string',
+            'description'             => 'nullable|string',
+            'training_gastos_toggle'  => 'nullable',
+            'training_details'        => 'required_if:training_gastos_toggle,1|string',
+            'training_value'          => 'nullable|numeric',
+            'expense_type'            => 'nullable|string',
+            'expense_value'           => 'nullable|numeric',
+            'vehicle_plate'           => 'required_if:expense_type,Vehículo a cargo de la Alcaldía|nullable|string|max:20',
+            'driver_name'             => 'required_if:expense_type,Vehículo a cargo de la Alcaldía|nullable|string|max:255',
+            'invitation_file'         => 'nullable|file|max:10240',
+            'evidence_file'           => 'nullable|file|max:10240',
+            'user_id'                 => 'nullable|integer',
+            'commission_status_id'    => 'nullable|integer',
+            'dependency_id'           => 'nullable|integer',
+            'budget_id'               => 'nullable|integer',
         ];
+    }
+
+    /**
+     * Se dispara automáticamente cuando el campo identificación cambia.
+     * Limpia el resultado anterior para que el usuario vuelva a buscar.
+     */
+    public function updatedIdentification()
+    {
+        $this->funcionario_encontrado = null;
+        $this->funcionario_confirmado = false;
+        $this->busqueda_error = '';
+    }
+
+    /**
+     * Busca el funcionario en bd_viaticos por cédula.
+     * Se llama desde el botón lupita del Blade.
+     */
+    public function buscarFuncionario()
+{
+    $this->funcionario_encontrado = null;
+    $this->funcionario_confirmado = false;
+    $this->busqueda_error = '';
+
+    $cedula = trim($this->identification);
+
+    if (!$cedula) {
+        $this->busqueda_error = 'Ingrese una cédula válida.';
+        return;
+    }
+
+    try {
+        $funcionario = DB::table('viaticos_empleado as e')
+            ->leftJoin('viaticos_cargos as c', function($join) {
+                $join->whereRaw('c.codigo_cargo = e.codigo')
+                     ->whereRaw('c.grado_cargo = e.grado');
+            })
+            ->where('e.cc_emp', $cedula)
+            ->select(
+                'e.nm_emp  as nombre',
+                'e.vincu   as vinculacion',
+                'e.cargo   as cargo',
+                'e.codigo  as codigo',
+                'e.grado   as grado',
+                'e.depend  as dependencia',
+                DB::raw('COALESCE(MAX(c.salario), 0) as salario')
+            )
+            ->groupBy(
+                'e.nm_emp',
+                'e.vincu',
+                'e.cargo',
+                'e.codigo',
+                'e.grado',
+                'e.depend'
+            )
+            ->first();
+
+        if (!$funcionario) {
+            $this->busqueda_error = 'No se encontró ningún funcionario con esa cédula.';
+            return;
+        }
+
+        $this->funcionario_encontrado = (array) $funcionario;
+
+    } catch (\Throwable $e) {
+        Log::error('Error buscando funcionario: ' . $e->getMessage());
+        $this->busqueda_error = 'Error de conexión. Intente de nuevo.';
+    }
+}
+
+    /**
+     * Confirma el funcionario encontrado y habilita el resto del formulario.
+     */
+    public function confirmarFuncionario()
+    {
+        if (!$this->funcionario_encontrado) {
+            $this->busqueda_error = 'Primero busque un funcionario.';
+            return;
+        }
+        $this->funcionario_confirmado = true;
     }
 
     public function resetFields()
     {
-        $this->commission_id = null;
-        $this->objective = '';
-        $this->identification = '';
-        $this->start_date = null;
-        $this->end_date = null;
-        $this->is_exterior = '0';
-        $this->exterior_zone = '';
-        $this->dollar_value = null;
-        $this->destination = '';
-        $this->description = '';
+        $this->commission_id          = null;
+        $this->objective              = '';
+        $this->identification         = '';
+        $this->start_date             = null;
+        $this->end_date               = null;
+        $this->is_exterior            = '0';
+        $this->exterior_zone          = '';
+        $this->dollar_value           = null;
+        $this->destination            = '';
+        $this->description            = '';
         $this->training_gastos_toggle = '0';
-        $this->training_details = '';
-        $this->training_value = null;
-        $this->expense_type = '';
-        $this->expense_value = null;
-        $this->vehicle_plate = '';
-        $this->driver_name = '';
-        $this->user_id = null;
-        $this->commission_status_id = null;
-        $this->dependency_id = null;
-        $this->budget_id = null;
-        $this->invitation_file = null;
-        $this->evidence_file = null;
-        $this->industry = null;
+        $this->training_details       = '';
+        $this->training_value         = null;
+        $this->expense_type           = '';
+        $this->expense_value          = null;
+        $this->vehicle_plate          = '';
+        $this->driver_name            = '';
+        $this->user_id                = null;
+        $this->commission_status_id   = null;
+        $this->dependency_id          = null;
+        $this->budget_id              = null;
+        $this->invitation_file        = null;
+        $this->evidence_file          = null;
+        $this->industry               = null;
+        $this->funcionario_encontrado = null;
+        $this->funcionario_confirmado = false;
+        $this->busqueda_error         = '';
     }
 
-    /**
-     * Guardar (crear o actualizar) comisión en la BD y archivos a storage.
-     */
     public function save()
     {
         try {
@@ -129,9 +215,9 @@ class CommissionComponent extends Component
             Log::warning('Validation failed in CommissionComponent@save', ['errors' => $ve->errors()]);
             return;
         }
- 
+
         DB::beginTransaction();
- 
+
         try {
             $dependencyId = $this->dependency_id;
             if (empty($dependencyId)) {
@@ -139,26 +225,34 @@ class CommissionComponent extends Component
                     ? auth()->user()->dependency_id
                     : 1;
             }
- 
+
             $data = [
-                'objetive' => $this->objective,
-                'identification' => $this->identification ?: null,
-                'start_date' => $this->start_date,
-                'end_date' => $this->end_date,
-                'destination' => $this->destination ?: null,
-                'description' => $this->description ?: null,
-                'abroad' => $this->is_exterior === '1' ? true : false,
-                'training_expenses' => ($this->training_gastos_toggle === '1') ? (float) str_replace(['.', ','], ['', '.'], $this->training_value ?: '0') : 0,
-                'expense_type' => $this->expense_type ?: null,
-                'expense_value' => $this->expense_value ? (float) str_replace(['.', ','], ['', '.'], $this->expense_value) : null,
-                'vehicle_plate' => $this->expense_type === 'Vehículo a cargo de la Alcaldía' ? ($this->vehicle_plate ?: null) : null,
-                'driver_name' => $this->expense_type === 'Vehículo a cargo de la Alcaldía' ? ($this->driver_name ?: null) : null,
-                'user_id' => $this->user_id ?: auth()->id(),
-                'commission_status_id' => $this->commission_status_id ?: null,
-                'dependency_id' => $dependencyId,
-                'budget_id' => $this->budget_id ?: null,
+                'objetive'          => $this->objective,
+                'identification'    => $this->identification ?: null,
+                'start_date'        => $this->start_date,
+                'end_date'          => $this->end_date,
+                'destination'       => $this->destination ?: null,
+                'description'       => $this->description ?: null,
+                'abroad'            => $this->is_exterior === '1',
+                'training_expenses' => ($this->training_gastos_toggle === '1')
+                    ? (float) str_replace(['.', ','], ['', '.'], $this->training_value ?: '0')
+                    : 0,
+                'expense_type'      => $this->expense_type ?: null,
+                'expense_value'     => $this->expense_value
+                    ? (float) str_replace(['.', ','], ['', '.'], $this->expense_value)
+                    : null,
+                'vehicle_plate'     => $this->expense_type === 'Vehículo a cargo de la Alcaldía'
+                    ? ($this->vehicle_plate ?: null)
+                    : null,
+                'driver_name'       => $this->expense_type === 'Vehículo a cargo de la Alcaldía'
+                    ? ($this->driver_name ?: null)
+                    : null,
+                'user_id'               => $this->user_id ?: auth()->id(),
+                'commission_status_id'  => $this->commission_status_id ?: null,
+                'dependency_id'         => $dependencyId,
+                'budget_id'             => $this->budget_id ?: null,
             ];
- 
+
             if ($this->commission_id) {
                 $commission = Commission::find($this->commission_id);
                 if (!$commission) {
@@ -167,84 +261,81 @@ class CommissionComponent extends Component
                 $commission->update($data);
             } else {
                 $commission = Commission::create($data);
- 
-                // Generar número de resolución automático desde 1000
+
                 $lastResolution = Resolution::orderByDesc('id')->first();
                 $nextNumber = $lastResolution ? (int) $lastResolution->number + 1 : 1000;
- 
+
                 Resolution::create([
-                    'number' => str_pad($nextNumber, 4, '0', STR_PAD_LEFT),
-                    'date' => now(),
-                    'file' => null,
-                    'user_id' => auth()->id(),
+                    'number'        => str_pad($nextNumber, 4, '0', STR_PAD_LEFT),
+                    'date'          => now(),
+                    'file'          => null,
+                    'user_id'       => auth()->id(),
                     'commission_id' => $commission->id,
                 ]);
             }
- 
-            // invitation_file
+
             if ($this->invitation_file) {
                 $extension = $this->invitation_file->getClientOriginalExtension();
-                $filename = 'invitation-' . time() . '.' . $extension;
-                $path = $this->invitation_file->storeAs("commissions/{$commission->id}", $filename, 'public');
+                $filename  = 'invitation-' . time() . '.' . $extension;
+                $path      = $this->invitation_file->storeAs("commissions/{$commission->id}", $filename, 'public');
                 $commission->invitation_path = $path;
                 $commission->save();
             }
- 
-            // evidence_file
+
             if ($this->evidence_file) {
-                $filename = 'evidence-' . time() . '.' . $this->evidence_file->getClientOriginalExtension();
+                $filename  = 'evidence-' . time() . '.' . $this->evidence_file->getClientOriginalExtension();
                 $storePath = $this->evidence_file->storeAs("public/commissions/{$commission->id}", $filename);
                 $commission->evidence_path = Str::replaceFirst('public/', '', $storePath);
                 $commission->save();
             }
- 
+
             DB::commit();
- 
+
             session()->flash('message', $this->commission_id ? 'Comisión actualizada.' : 'Comisionado creado.');
- 
             $this->resetFields();
+
         } catch (\Throwable $e) {
             DB::rollBack();
             Log::error('Error guardando comisión: ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
                 'trace' => $e->getTraceAsString(),
             ]);
             session()->flash('message', 'Error al crear/actualizar la comisión. Revisa el log.');
         }
- 
+
         $this->dispatch('close-modal', name: 'new-commission');
     }
 
-    /**
-     * Cargar datos para edición.
-     */
     public function edit($id)
     {
         try {
             $commission = Commission::findOrFail($id);
 
-            $this->commission_id = $commission->id;
-            $this->objective = $commission->objetive ?? '';
-            $this->identification = $commission->identification ?? '';
-            $this->start_date = optional($commission->start_date)->format('Y-m-d') ?? null;
-            $this->end_date = optional($commission->end_date)->format('Y-m-d') ?? null;
-            $this->is_exterior = $commission->abroad ? '1' : '0';
-            $this->exterior_zone = $commission->exterior_zone ?? '';
-            $this->dollar_value = $commission->dollar_value ?? null;
-            $this->destination = $commission->destination ?? '';
-            $this->description = $commission->description ?? '';
+            $this->commission_id          = $commission->id;
+            $this->objective              = $commission->objetive ?? '';
+            $this->identification         = $commission->identification ?? '';
+            $this->start_date             = optional($commission->start_date)->format('Y-m-d') ?? null;
+            $this->end_date               = optional($commission->end_date)->format('Y-m-d') ?? null;
+            $this->is_exterior            = $commission->abroad ? '1' : '0';
+            $this->exterior_zone          = $commission->exterior_zone ?? '';
+            $this->dollar_value           = $commission->dollar_value ?? null;
+            $this->destination            = $commission->destination ?? '';
+            $this->description            = $commission->description ?? '';
             $this->training_gastos_toggle = ($commission->training_expenses && $commission->training_expenses > 0) ? '1' : '0';
-            $this->training_details = $commission->training_details ?? '';
-            $this->training_value = $commission->training_expenses ?? null;
-            $this->expense_type = $commission->expense_type ?? '';
-            $this->expense_value = $commission->expense_value ?? null;
-            $this->vehicle_plate = $commission->vehicle_plate ?? '';
-            $this->driver_name = $commission->driver_name ?? '';
-            $this->user_id = $commission->user_id ?? null;
-            $this->commission_status_id = $commission->commission_status_id ?? null;
-            $this->dependency_id = $commission->dependency_id ?? null;
-            $this->budget_id = $commission->budget_id ?? null;
+            $this->training_details       = $commission->training_details ?? '';
+            $this->training_value         = $commission->training_expenses ?? null;
+            $this->expense_type           = $commission->expense_type ?? '';
+            $this->expense_value          = $commission->expense_value ?? null;
+            $this->vehicle_plate          = $commission->vehicle_plate ?? '';
+            $this->driver_name            = $commission->driver_name ?? '';
+            $this->user_id                = $commission->user_id ?? null;
+            $this->commission_status_id   = $commission->commission_status_id ?? null;
+            $this->dependency_id          = $commission->dependency_id ?? null;
+            $this->budget_id              = $commission->budget_id ?? null;
+
+            // Al editar, marcar como confirmado si ya tiene cédula
+            $this->funcionario_confirmado = !empty($this->identification);
 
         } catch (\Throwable $e) {
             Log::error("Error al cargar comisión {$id} para edición: " . $e->getMessage());
@@ -259,24 +350,16 @@ class CommissionComponent extends Component
 
             if (!empty($commission->invitation_path)) {
                 $p = 'public/' . ltrim($commission->invitation_path, '/');
-                if (Storage::exists($p)) {
-                    Storage::delete($p);
-                } elseif (Storage::exists($commission->invitation_path)) {
-                    Storage::delete($commission->invitation_path);
-                }
+                Storage::exists($p) ? Storage::delete($p) : Storage::delete($commission->invitation_path);
             }
             if (!empty($commission->evidence_path)) {
                 $p = 'public/' . ltrim($commission->evidence_path, '/');
-                if (Storage::exists($p)) {
-                    Storage::delete($p);
-                } elseif (Storage::exists($commission->evidence_path)) {
-                    Storage::delete($commission->evidence_path);
-                }
+                Storage::exists($p) ? Storage::delete($p) : Storage::delete($commission->evidence_path);
             }
 
             $commission->delete();
-
             session()->flash('message', 'Comisionado eliminado.');
+
         } catch (\Throwable $e) {
             Log::error("Error al eliminar comisión {$id}: " . $e->getMessage());
             session()->flash('message', 'Error al eliminar la comisión.');
@@ -285,29 +368,25 @@ class CommissionComponent extends Component
 
     public function uploadEvidence($id)
     {
-    $this->validate([
-        'evidence_file' => 'required|file|max:10240',
-    ]);
+        $this->validate(['evidence_file' => 'required|file|max:10240']);
 
-    try {
-        $commission = Commission::findOrFail($id);
+        try {
+            $commission = Commission::findOrFail($id);
+            $filename   = 'evidence-' . time() . '.' . $this->evidence_file->getClientOriginalExtension();
+            $path       = $this->evidence_file->storeAs("commissions/{$id}", $filename, 'public');
 
-        $extension = $this->evidence_file->getClientOriginalExtension();
-        $filename = 'evidence-' . time() . '.' . $extension;
-        
-        $path = $this->evidence_file->storeAs("commissions/{$id}", $filename, 'public');
-        
-        $commission->evidence_path = $path;
-        $commission->save();
+            $commission->evidence_path = $path;
+            $commission->save();
 
-        session()->flash('message', 'Evidencia subida correctamente.');
-        $this->evidence_file = null;
-        $this->dispatch('close-modal', name: 'upload-evidence-' . $id);
-    } catch (\Throwable $e) {
-        Log::error("Error subiendo evidencia para comisión {$id}: " . $e->getMessage());
-        session()->flash('message', 'Error al subir la evidencia.');
+            session()->flash('message', 'Evidencia subida correctamente.');
+            $this->evidence_file = null;
+            $this->dispatch('close-modal', name: 'upload-evidence-' . $id);
+
+        } catch (\Throwable $e) {
+            Log::error("Error subiendo evidencia para comisión {$id}: " . $e->getMessage());
+            session()->flash('message', 'Error al subir la evidencia.');
+        }
     }
-}
 
     public function render()
     {
@@ -330,7 +409,7 @@ class CommissionComponent extends Component
     {
         if ($value !== 'Vehículo a cargo de la Alcaldía') {
             $this->vehicle_plate = '';
-            $this->driver_name = '';
+            $this->driver_name   = '';
         }
     }
 }
